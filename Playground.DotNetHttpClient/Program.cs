@@ -14,15 +14,34 @@ builder
 
 var app = builder.Build();
 
-app.MapGet("/artists", async ([FromQuery] string name, DeezerHttpClient client) =>
+app.MapGet("/tracks", async ([FromQuery(Name = "artist")] string artistName, DeezerHttpClient client) =>
 {
-    var response = await client.GetArtist(name);
+    var artists = await client.GetArtist(artistName);
 
-    return response switch
+    var artist = artists?.Data.First();
+
+    if (artist is null)
     {
-        {Data.Count: > 0} => Results.Ok(response.Data.First()),
-        _ => Results.BadRequest(new {message = $"Artist {name} not found"})
-    };
+        return Results.BadRequest(new {message = $"Artist {artistName} not found"});
+    }
+
+    var preflight = await client.GetArtistTracks(artist.Id);
+
+    var tracks = await client.GetArtistTracks(artist.Id, preflight!.Total);
+
+    return Results.Ok(new
+    {
+        Tracks = tracks!.Data
+            .Select(x => new
+            {
+                x.Id, 
+                x.Rank,
+                x.Title,
+                Album = x.Album.Title,
+                Duration = TimeSpan.FromSeconds(x.Duration),
+            })
+            .OrderByDescending(x => x.Rank)
+    });
 });
 
 app.Run();
