@@ -10,7 +10,7 @@ public sealed class DeezerHttpClient
         => _httpClient.GetFromJsonAsync<DeezerHttpResponse<ArtistModel>>(
             $"search/artist?q={artistName}&limit=1");
     
-    public Task<DeezerHttpResponse<TrackModel>?> GetArtistTracks(int artistId, int tracksCount = 1)
+    public Task<DeezerHttpResponse<TrackModel>?> GetArtistTopTracks(int artistId)
         => _httpClient.GetFromJsonAsync<DeezerHttpResponse<TrackModel>>(
-            $"artist/{artistId}/top?limit={tracksCount}");
+            $"artist/{artistId}/top?limit=100");
 }

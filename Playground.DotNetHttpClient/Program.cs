@@ -24,10 +24,8 @@ app.MapGet("/tracks", async ([FromQuery(Name = "artist")] string artistName, Dee
     {
         return Results.BadRequest(new {message = $"Artist {artistName} not found"});
     }
-
-    var preflight = await client.GetArtistTracks(artist.Id);
-
-    var tracks = await client.GetArtistTracks(artist.Id, preflight!.Total);
+    
+    var tracks = await client.GetArtistTopTracks(artist.Id);
 
     return Results.Ok(new
     {
