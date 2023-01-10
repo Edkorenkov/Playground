@@ -31,6 +31,7 @@ app.MapGet("/tracks", async ([FromQuery(Name = "artist")] string artistName, Dee
 
     return Results.Ok(new
     {
+        Count = tracks!.Total,
         Tracks = tracks!.Data
             .Select(x => new
             {
